@@ -7,7 +7,6 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-
 // Initialize Appwrite SDK
 const client = new Client();
 client
