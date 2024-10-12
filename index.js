@@ -1,23 +1,38 @@
-// index.js
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const forge = require('node-forge');
+const { Client, Account, Databases } = require('appwrite'); // Import Appwrite SDK
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
-// Mock function to get user's public key from Appwrite
-// In a real scenario, replace this with Appwrite SDK calls or API requests
+// Initialize Appwrite SDK
+const client = new Client();
+client
+    .setEndpoint('https://cloud.appwrite.io/v1') // Set your Appwrite endpoint
+    .setProject('66e57bf0001e54fb8a20'); // Set your Appwrite project ID
+
+const account = new Account(client);
+const databases = new Databases(client);
+
+// Function to get user's public key from Appwrite preferences
 const getUserPublicKey = async (userId) => {
-    // TODO: Implement retrieval of public key from Appwrite
-    // For example, using Appwrite SDK:
-    // const account = new Account(client);
-    // const user = await account.get();
-    // return user.prefs.publicKey;
-    return "-----BEGIN PUBLIC KEY-----\nYOUR_PUBLIC_KEY_HERE\n-----END PUBLIC KEY-----";
+    try {
+        // Fetch the user's account using their userId
+        const user = await account.get(userId);
+
+        // Assuming the public key is stored in user preferences
+        if (user && user.prefs && user.prefs.publicKey) {
+            return user.prefs.publicKey;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error('Error retrieving user public key:', error);
+        return null;
+    }
 };
 
 app.post('/verify-signature', async (req, res) => {
